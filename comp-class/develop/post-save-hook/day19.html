@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Untitled</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>day19</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -14269,56 +14269,74 @@ a.anchor-link {
     </script>
     <!-- End of mathjax configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Day-19">Day 19<a class="anchor-link" href="#Day-19">&#182;</a></h2><p>We worked in excel solving differential equations.</p>
+<p>Below is some scripts about using Gaussian quadrature that I decided to abandon for now.</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> widget
-</pre></div>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">######################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># Functions to calculate integration points and weights for Gaussian</span>
+<span class="c1"># quadrature</span>
+<span class="c1">#</span>
+<span class="c1"># x,w = gaussxw(N) returns integration points x and integration</span>
+<span class="c1">#           weights w such that sum_i w[i]*f(x[i]) is the Nth-order</span>
+<span class="c1">#           Gaussian approximation to the integral int_{-1}^1 f(x) dx</span>
+<span class="c1"># x,w = gaussxwab(N,a,b) returns integration points and weights</span>
+<span class="c1">#           mapped to the interval [a,b], so that sum_i w[i]*f(x[i])</span>
+<span class="c1">#           is the Nth-order Gaussian approximation to the integral</span>
+<span class="c1">#           int_a^b f(x) dx</span>
+<span class="c1">#</span>
+<span class="c1"># This code finds the zeros of the nth Legendre polynomial using</span>
+<span class="c1"># Newton&#39;s method, starting from the approximation given in Abramowitz</span>
+<span class="c1"># and Stegun 22.16.6.  The Legendre polynomial itself is evaluated</span>
+<span class="c1"># using the recurrence relation given in Abramowitz and Stegun</span>
+<span class="c1"># 22.7.10.  The function has been checked against other sources for</span>
+<span class="c1"># values of N up to 1000.  It is compatible with version 2 and version</span>
+<span class="c1"># 3 of Python.</span>
+<span class="c1">#</span>
+<span class="c1"># Written by Mark Newman &lt;mejn@umich.edu&gt;, June 4, 2011</span>
+<span class="c1"># You may use, share, or modify this file freely</span>
+<span class="c1">#</span>
+<span class="c1">######################################################################</span>
 
-     </div>
-</div>
-</div>
-</div>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">ones</span><span class="p">,</span><span class="n">copy</span><span class="p">,</span><span class="n">cos</span><span class="p">,</span><span class="n">tan</span><span class="p">,</span><span class="n">pi</span><span class="p">,</span><span class="n">linspace</span>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-</pre></div>
+<span class="k">def</span> <span class="nf">gaussxw</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
 
-     </div>
-</div>
-</div>
-</div>
+    <span class="c1"># Initial approximation to roots of the Legendre polynomial</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">linspace</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="o">*</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">N</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">N</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">cos</span><span class="p">(</span><span class="n">pi</span><span class="o">*</span><span class="n">a</span><span class="o">+</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">8</span><span class="o">*</span><span class="n">N</span><span class="o">*</span><span class="n">N</span><span class="o">*</span><span class="n">tan</span><span class="p">(</span><span class="n">a</span><span class="p">)))</span>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">scripts</span> <span class="kn">import</span> <span class="n">cRK4</span>
-</pre></div>
+    <span class="c1"># Find roots using Newton&#39;s method</span>
+    <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-15</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">while</span> <span class="n">delta</span><span class="o">&gt;</span><span class="n">epsilon</span><span class="p">:</span>
+        <span class="n">p0</span> <span class="o">=</span> <span class="n">ones</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">p1</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">N</span><span class="p">):</span>
+            <span class="n">p0</span><span class="p">,</span><span class="n">p1</span> <span class="o">=</span> <span class="n">p1</span><span class="p">,((</span><span class="mi">2</span><span class="o">*</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">p1</span><span class="o">-</span><span class="n">k</span><span class="o">*</span><span class="n">p0</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">dp</span> <span class="o">=</span> <span class="p">(</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">p0</span><span class="o">-</span><span class="n">x</span><span class="o">*</span><span class="n">p1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">p1</span><span class="o">/</span><span class="n">dp</span>
+        <span class="n">x</span> <span class="o">-=</span> <span class="n">dx</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">dx</span><span class="p">))</span>
 
-     </div>
-</div>
-</div>
-</div>
+    <span class="c1"># Calculate the weights</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">N</span><span class="o">*</span><span class="n">N</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="n">dp</span><span class="o">*</span><span class="n">dp</span><span class="p">)</span>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+    <span class="k">return</span> <span class="n">x</span><span class="p">,</span><span class="n">w</span>
+
+<span class="k">def</span> <span class="nf">gaussxwab</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">,</span><span class="n">w</span> <span class="o">=</span> <span class="n">gaussxw</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">b</span><span class="o">-</span><span class="n">a</span><span class="p">)</span><span class="o">*</span><span class="n">x</span><span class="o">+</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">b</span><span class="o">+</span><span class="n">a</span><span class="p">),</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">b</span><span class="o">-</span><span class="n">a</span><span class="p">)</span><span class="o">*</span><span class="n">w</span>
 </pre></div>
 
      </div>
@@ -14329,10 +14347,10 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sys</span><span class="o">.</span><span class="n">path</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">gaussxw</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14348,29 +14366,57 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[2]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>[&#39;C:\\Users\\ehreming\\Dropbox\\390\\comp-class\\develop&#39;,
- &#39;C:\\Users\\ehreming\\Dropbox\\390\\comp-class\\scripts&#39;,
- &#39;C:\\Users\\ehreming\\Anaconda3\\python39.zip&#39;,
- &#39;C:\\Users\\ehreming\\Anaconda3\\DLLs&#39;,
- &#39;C:\\Users\\ehreming\\Anaconda3\\lib&#39;,
- &#39;C:\\Users\\ehreming\\Anaconda3&#39;,
- &#39;&#39;,
- &#39;C:\\Users\\ehreming\\Anaconda3\\lib\\site-packages&#39;,
- &#39;C:\\Users\\ehreming\\Anaconda3\\lib\\site-packages\\win32&#39;,
- &#39;C:\\Users\\ehreming\\Anaconda3\\lib\\site-packages\\win32\\lib&#39;,
- &#39;C:\\Users\\ehreming\\Anaconda3\\lib\\site-packages\\Pythonwin&#39;]</pre>
+<pre>(array([ 0.96028986,  0.79666648,  0.52553241,  0.18343464, -0.18343464,
+        -0.52553241, -0.79666648, -0.96028986]),
+ array([0.10122854, 0.22238103, 0.31370665, 0.36268378, 0.36268378,
+        0.31370665, 0.22238103, 0.10122854]))</pre>
 </div>
 
 </div>
 
 </div>
 
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">GaussLagQuad8</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1.7027963230510100e-1</span><span class="p">,</span> <span class="mf">9.0370177679937991e-1</span><span class="p">,</span>\
+       <span class="mf">2.2510866298661307</span><span class="p">,</span>    <span class="mf">4.2667001702876588</span><span class="p">,</span>\
+       <span class="mf">7.0459054023934657</span><span class="p">,</span>    <span class="mf">1.0758516010180995e+1</span><span class="p">,</span>\
+       <span class="mf">1.5740678641278005e+1</span><span class="p">,</span> <span class="mf">2.2863131736889264e+1</span><span class="p">])</span>
+    <span class="n">w</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">3.6918858934163753e-1</span><span class="p">,</span> <span class="mf">4.1878678081434296e-1</span><span class="p">,</span>\
+       <span class="mf">1.7579498663717181e-1</span><span class="p">,</span> <span class="mf">3.3343492261215652e-2</span><span class="p">,</span>\
+       <span class="mf">2.7945362352256725e-3</span><span class="p">,</span> <span class="mf">9.0765087733582131e-5</span><span class="p">,</span>\
+       <span class="mf">8.4857467162725315e-7</span><span class="p">,</span> <span class="mf">1.0480011748715104e-9</span><span class="p">])</span>
+    <span class="n">integral</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span><span class="o">*</span><span class="n">function</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">integral</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">gaussHermQuad8</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="o">-</span><span class="mf">0.38118699</span><span class="p">,</span><span class="o">-</span><span class="mf">1.157193712</span><span class="p">,</span><span class="o">-</span><span class="mf">1.981656757</span><span class="p">,</span><span class="o">-</span><span class="mf">2.93063742</span><span class="p">,</span><span class="mf">0.38118699</span><span class="p">,</span><span class="mf">1.157193712</span><span class="p">,</span><span class="mf">1.981656757</span><span class="p">,</span><span class="mf">2.93063742</span><span class="p">])</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">0.661147013</span><span class="p">,</span><span class="mf">0.207802326</span><span class="p">,</span><span class="mf">0.017077983</span><span class="p">,</span><span class="mf">0.000199604</span><span class="p">,</span><span class="mf">0.661147013</span><span class="p">,</span><span class="mf">0.207802326</span><span class="p">,</span><span class="mf">0.017077983</span><span class="p">,</span><span class="mf">.000199604</span><span class="p">])</span>
+    <span class="n">integral</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span><span class="o">*</span><span class="n">function</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">integral</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">gaussLegQuad8</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="o">-</span><span class="mf">0.183434643</span><span class="p">,</span><span class="o">-</span><span class="mf">0.52553241</span><span class="p">,</span><span class="o">-</span><span class="mf">0.796666477</span><span class="p">,</span><span class="o">-</span><span class="mf">0.960289857</span><span class="p">,</span><span class="mf">0.183434643</span><span class="p">,</span><span class="mf">0.52553241</span><span class="p">,</span><span class="mf">0.796666477</span><span class="p">,</span><span class="mf">0.960289857</span><span class="p">])</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">0.362683783</span><span class="p">,</span><span class="mf">0.313706646</span><span class="p">,</span><span class="mf">0.222381035</span><span class="p">,</span><span class="mf">0.101228536</span><span class="p">,</span><span class="mf">0.362683783</span><span class="p">,</span><span class="mf">0.313706646</span><span class="p">,</span><span class="mf">0.222381035</span><span class="p">,</span><span class="mf">0.101228536</span><span class="p">])</span>
+    <span class="n">integral</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span><span class="o">*</span><span class="n">function</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
 </div>
 
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
