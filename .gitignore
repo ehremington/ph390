@@ -1,0 +1,9 @@
+*.djvu
+*.autosave.xopp
+*~
+books/
+exams/
+*.ipynb_checkpoints/
+CompPhysBook-Newman/
+
+
